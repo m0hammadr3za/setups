@@ -4,4 +4,4 @@ This repository contains various setup configurations that I prefer to save and 
 
 ## Available Setup Guides
 
-- [React + Vite + Styled Components + Storybook](#setting-up-a-reactvite-project)
+- [React + Vite + Styled Components + Storybook](./react-vite.md)
