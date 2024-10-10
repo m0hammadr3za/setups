@@ -18,7 +18,7 @@ This guide walks you through setting up a React project using Vite, with configu
    Select a framework: » React
    ```
 
-5. **Select a variant**: Choose `Typescript` for TypeScript support or `Javascript` for plain JavaScript.
+5. **Select a variant**: Choose `TypeScript` for TypeScript support or `JavaScript` for plain JavaScript.
 
 ---
 
@@ -51,6 +51,30 @@ yarn dev
 ```
 
 Your app will be running at [http://localhost:5173](http://localhost:5173).
+
+---
+
+## Setting Up Storybook
+
+### Install Storybook
+
+Install Storybook by running:
+
+```bash
+npx storybook@latest init
+```
+
+This will install Storybook and configure it for React with Vite as the build tool.
+
+### Run Storybook
+
+Start the Storybook development server:
+
+```bash
+yarn storybook
+```
+
+Storybook will be available at [http://localhost:6006](http://localhost:6006).
 
 ---
 
@@ -153,27 +177,32 @@ To apply global theming, follow these steps:
    export default App;
    ```
 
-### Using `styled-components` for Global Styles
+### Using styled-components for Global Styles
 
-Styled Components allows you to define global styles through its `createGlobalStyle` helper.
+Styled-components allows you to define global styles through its `createGlobalStyle` helper.
 
-1. **Create a global styles file** (e.g., `GlobalStyles.js` in the `src` folder):
+1. **Create a global styles file** (e.g., `GlobalStyles.ts` in the `src` folder):
 
-   ```jsx
-   // src/GlobalStyles.js
+   ```ts
+   // src/GlobalStyles.ts
    import { createGlobalStyle } from "styled-components";
 
    const GlobalStyle = createGlobalStyle`
      /* CSS Reset */
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+     *,
+     *::before,
+     *::after {
+       box-sizing: border-box;
+       margin: 0;
+       padding: 0;
+     }
    
-      ...
+     /* Global Styles */
+     body {
+       font-family: Arial, sans-serif;
+       background-color: ${(props) => props.theme.colors.secondary};
+       color: #fff;
+     }
    `;
 
    export default GlobalStyle;
@@ -181,13 +210,14 @@ Styled Components allows you to define global styles through its `createGlobalSt
 
 2. **Include the global styles in your App**:
 
-   Open your `App.jsx` and import `GlobalStyle`:
+   Open your `App.tsx` and import `GlobalStyle`:
 
-   ```jsx
+   ```tsx
+   // App.tsx
    import React from "react";
    import GlobalStyle from "./GlobalStyles";
 
-   const App = () => {
+   const App: React.FC = () => {
      return (
        <>
          <GlobalStyle /> {/* Apply global styles */}
@@ -199,31 +229,57 @@ Styled Components allows you to define global styles through its `createGlobalSt
    export default App;
    ```
 
-This will apply the global styles from `styled-components` across your entire app.
+   This will apply the global styles from styled-components across your entire app.
 
----
+### Integrate Styled Components with Storybook
 
-## Setting Up Storybook
+To use your styled-components theme and global styles in Storybook, you need to wrap your stories with the `ThemeProvider` and include the global styles.
 
-### Install Storybook
+#### Modify Storybook's Preview Configuration
 
-Install Storybook by running:
+1. **Rename `preview.ts` to `preview.tsx`**:
 
-```bash
-npx storybook@latest init
-```
+   Navigate to the `.storybook` directory and rename `preview.ts` to `preview.tsx` to allow the use of JSX syntax in the preview configuration.
 
-This will install Storybook and configure it for React with Vite as the build tool.
+   ```bash
+   mv .storybook/preview.ts .storybook/preview.tsx
+   ```
 
-### Run Storybook
+2. **Update `preview.tsx`**:
 
-Start the Storybook development server:
+   Open `.storybook/preview.tsx` and update it as follows:
 
-```bash
-yarn storybook
-```
+   ```tsx
+   // .storybook/preview.tsx
+   import React from "react";
+   import { ThemeProvider } from "styled-components";
+   import { theme } from "../src/theme";
+   import GlobalStyle from "../src/GlobalStyles";
+   import type { Preview } from "@storybook/react";
 
-Storybook will be available at [http://localhost:6006](http://localhost:6006).
+   const preview: Preview = {
+     parameters: {
+       controls: {
+         matchers: {
+           color: /(background|color)$/i,
+           date: /Date$/,
+         },
+       },
+     },
+     decorators: [
+       (Story) => (
+         <ThemeProvider theme={theme}>
+           <GlobalStyle />
+           <Story />
+         </ThemeProvider>
+       ),
+     ],
+   };
+
+   export default preview;
+   ```
+
+   This configuration wraps all your stories with the `ThemeProvider` and applies the global styles, ensuring that the theme and global styles are available in your Storybook components.
 
 ---
 
