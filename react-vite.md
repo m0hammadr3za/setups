@@ -127,7 +127,7 @@ To apply global theming, follow these steps:
 2. **Wrap your app in the ThemeProvider**:
 
    ```tsx
-   // index.tsx
+   // main.tsx
    import React from "react";
    import ReactDOM from "react-dom/client";
    import App from "./App";
